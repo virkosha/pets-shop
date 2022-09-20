@@ -84,69 +84,95 @@ const items = [{
     },
 ];
 
+// товары, которые мы будем показывать пользователю, после пременения поиска/фильтров
+const searchMatch = [...items];
 
-
+// шаблон для товара
 const cardTemplate = document.querySelector('#item-template');
-const copyCard = cardTemplate.content.cloneNode(true);
-
+// переменная с контейнером для товара
 const container = document.querySelector('#shop-items');
 
-// функция создания карточки
-function createСard(item) {
 
-    const { title, description, tags, price, img } = item;
+// функция создания верстки карточки
+function createСard(cardItem) {
+
+    const { title, description, tags, price, img } = cardItem;
+    // копируем основу товара из шаблона
+    const copyCard = cardTemplate.content.cloneNode(true);
 
     copyCard.querySelector('h1').textContent = title;
     copyCard.querySelector('p').textContent = description;
     copyCard.querySelector('img').src = img;
     copyCard.querySelector('.price').textContent = price;
-    copyCard.querySelector('.tags').textContent = tags;
 
 
+    // Находим шаблон для тегов
+    const tagsContainer = copyCard.querySelector(".tags");
+
+    // добавляем теги карточки товара
     tags.forEach(tag => {
         const tagElement = document.createElement('span');
-        tagElement.nextContent = tag;
+        tagElement.textContent = tag;
         tagElement.classList.add('tag');
-        tags.append(tagElement);
+        tagsContainer.append(tagElement);
     })
 
 
     return copyCard;
 }
 
-// функция отрисовки
-function addСard(arr) {
 
+
+// Текст, если ничего не найдено
+const nothingFound = document.querySelector("#nothing-found");
+
+// функция отрисовки карточек
+function addСard(items) {
+
+    // Сбрасываем текст "Ничего не найдено" после предыдущего поиска
+    nothingFound.textContent = "";
+    // И чистим контейнер с товарами на случай, если там что-то было
+    container.innerHTML = "";
+
+    // Отрисовываем товары из переданного параметра
     items.forEach((item) => {
 
         container.append(createСard(item));
 
     });
-
-
-}
-
-
-// функция поиска
-function searchCard() {
-
-    container.innerHTML = "";
-
-    const searchInput = document.querySelector('#search-input');
-    const searchString = searchInput.value.trim().toLowerCase();
-
-    const searchMatch = [];
-    searchMatch = items.filter((element) =>
-        element.title.toLocaleLowerCase().includes(searchString)
-    );
-
-    const nothingFound = document.querySelector('#nothing-found');
-
-    if (!arr.length) {
+    if (!items.length) {
         nothingFound.textContent = "Ничего не найдено";
     }
 
 }
 
+// вызов функции для начальной отрисовки карточек товаров
+addСard(items);
+
+
+const searchInput = document.querySelector('#search-input');
 const searchButton = document.querySelector('#search-btn');
+
+
+
+
+// функция поиска
+function searchCard() {
+
+    // причесываем значение инпута
+    const searchString = searchInput.value.trim().toLowerCase();
+
+    // ищем все товары, в title которых есть searchString
+    searchMatch = items.filter((element) =>
+        element.title.toLocaleLowerCase().includes(searchString)
+    );
+
+    // Отрисовываем результаты поиска
+    addСard(searchMatch);
+
+}
+
+// обработчик события при клике на кнопку
 searchButton.addEventListener("click", searchCard);
+// обработчик события при нажатии enter в input
+searchInput.addEventListener("search", searchCard);
